@@ -1,8 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask
 from dotenv import load_dotenv
 from sqlalchemy import text
 
 from app.config.db import configure_database, db
+from app.routes.route import register_routes
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,6 +13,9 @@ app = Flask(__name__)
 # init db
 configure_database(app)
 
+# register routes
+register_routes(app)
+
 
 def execute_raw_query(query):
     with db.engine.connect() as connection:
@@ -20,14 +24,5 @@ def execute_raw_query(query):
         return result.fetchall()
 
 
-@app.route("/")
-def hello_world():
-    q = 'SELECT 10+10'
-    results = execute_raw_query(q)
-
-    print(results)
-    return '<p>Hello, flaskDemo!</p>'
-
-
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
