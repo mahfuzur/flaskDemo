@@ -24,5 +24,8 @@ def execute_raw_query(query):
         return result.fetchall()
 
 
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
     app.run(debug=True)

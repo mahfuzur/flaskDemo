@@ -16,6 +16,6 @@ def configure_database(app):
     # Create the MySQL connection URL
     db_url = f"{db_connection}://{db_username}:{db_password}@{db_host}:{db_port}/{db_database}"
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
     db.init_app(app)
