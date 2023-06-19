@@ -1,2 +1,2 @@
-from .user_model import User
-from .post_model import Post
+from .user_model import *
+from .post_model import *
