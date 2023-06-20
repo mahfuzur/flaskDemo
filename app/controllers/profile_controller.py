@@ -6,8 +6,8 @@ class ProfileController:
     @staticmethod
     @jwt_required()
     def get_profile():
-        current_user = get_jwt_identity()
-        return jsonify(message='Access granted for user {}'.format(current_user)), 200
+        auth_id = get_jwt_identity()
+        return jsonify(message='Access granted for user {}'.format(auth_id)), 200
 
     @staticmethod
     @jwt_required()

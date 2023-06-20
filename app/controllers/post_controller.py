@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import jsonify, request
 
 from app import db, Post
+from app.middlewares.auth import admin_required
 from app.utils import validate_request_data
 
 
@@ -48,6 +49,7 @@ class PostController:
             return jsonify({'message': 'Post not found'}), 404
 
     @staticmethod
+    @admin_required
     def update_post(post_id):
         post_schema = {
             'title': {'type': 'string', 'required': True, 'empty': False, 'maxlength': 255},
