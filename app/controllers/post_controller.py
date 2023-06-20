@@ -1,14 +1,16 @@
 from datetime import datetime
 
 from flask import jsonify, request
+from flask_jwt_extended import jwt_required
 
 from app import db, Post
-from app.middlewares.auth import admin_required
+from app.middlewares import post_exist, admin_or_self_created
 from app.utils import validate_request_data
 
 
 class PostController:
     @staticmethod
+    @jwt_required()
     def create_post():
         post_schema = {
             'title': {'type': 'string', 'required': True, 'empty': False, 'maxlength': 255},
@@ -49,7 +51,9 @@ class PostController:
             return jsonify({'message': 'Post not found'}), 404
 
     @staticmethod
-    @admin_required
+    @jwt_required()
+    @post_exist
+    @admin_or_self_created
     def update_post(post_id):
         post_schema = {
             'title': {'type': 'string', 'required': True, 'empty': False, 'maxlength': 255},
@@ -77,6 +81,9 @@ class PostController:
         })
 
     @staticmethod
+    @jwt_required()
+    @post_exist
+    @admin_or_self_created
     def delete_post(post_id):
         post = Post.query.get(post_id)
         if post:
