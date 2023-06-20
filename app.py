@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 from sqlalchemy import text
 
 from app.config.db import configure_database, db
-from app.routes.route import register_routes
+from app.routes import register_routes
 
 # Load environment variables from .env file
 load_dotenv()

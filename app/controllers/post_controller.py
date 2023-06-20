@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from werkzeug.exceptions import BadRequest
 
 
 class PostController:

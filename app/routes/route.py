@@ -32,9 +32,3 @@ api.route('/users', methods=['GET'])(user_controller.get_all_users)
 api.route('/users/<int:user_id>', methods=['GET'])(user_controller.get_user)
 api.route('/users/<int:user_id>', methods=['PUT'])(user_controller.update_user)
 api.route('/users/<int:user_id>', methods=['DELETE'])(user_controller.delete_user)
-
-
-# Register the blueprint with the Flask app
-def register_routes(app):
-    app.register_blueprint(web)
-    app.register_blueprint(api, url_prefix='/v1')
