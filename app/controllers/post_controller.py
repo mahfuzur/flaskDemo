@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from cerberus import Validator
 from flask import jsonify, request
 
 from app import db, Post
+from app.utils import validate_request_data
 
 
 class PostController:
@@ -14,20 +14,9 @@ class PostController:
             'body': {'type': 'string', 'required': True, 'empty': False}
         }
 
-        try:
-            if request.content_type == 'application/json':
-                data = request.get_json()
-            elif request.content_type.startswith('multipart/form-data'):
-                data = request.form
-            else:
-                return jsonify({'error': 'Unsupported content type'}), 400
-
-            v = Validator(post_schema, allow_unknown=True)
-            if not v.validate(data):
-                errors = v.errors
-                return jsonify({'errors': errors}), 400
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        data = validate_request_data(request, post_schema)
+        if type(data) is tuple:
+            return data
 
         post = Post()
         post.title = data['title']
@@ -65,20 +54,9 @@ class PostController:
             'body': {'type': 'string', 'required': True, 'empty': False}
         }
 
-        try:
-            if request.content_type == 'application/json':
-                data = request.get_json()
-            elif request.content_type.startswith('multipart/form-data'):
-                data = request.form
-            else:
-                return jsonify({'error': 'Unsupported content type'}), 400
-
-            v = Validator(post_schema, allow_unknown=True)
-            if not v.validate(data):
-                errors = v.errors
-                return jsonify({'errors': errors}), 400
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        data = validate_request_data(request, post_schema)
+        if type(data) is tuple:
+            return data
 
         post = Post.query.get(post_id)
         if not post:

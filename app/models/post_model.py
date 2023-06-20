@@ -5,16 +5,16 @@ from app.config.db import db
 
 @dataclass
 class Post(db.Model):
-    id: int
-    title: str
-    body: str
-    published_at: str
-    created_at: datetime
-    updated_at: datetime
-    created_by: int
-    updated_by: int
-
     __tablename__ = "posts"
+
+    id: db.Integer
+    title: db.String
+    body: db.Text
+    published_at: db.DateTime
+    created_at: db.DateTime
+    updated_at: db.DateTime
+    created_by: db.Integer
+    updated_by: db.Integer
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)

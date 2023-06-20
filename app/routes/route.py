@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required
 
 from app.controllers import AuthController, PostController, UserController, ProfileController
 
@@ -16,6 +17,7 @@ api.route('/login', methods=['POST'])(auth_controller.login)
 api.route('/register', methods=['POST'])(auth_controller.register)
 
 profile_controller = ProfileController()
+
 api.route('/profile', methods=['GET'])(profile_controller.get_profile)
 api.route('/profile', methods=['POST'])(profile_controller.set_profile)
 
