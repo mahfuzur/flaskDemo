@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from flask import jsonify, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app import db, Post
 from app.middlewares import post_exist, admin_or_self_created
@@ -21,14 +21,16 @@ class PostController:
         if type(data) is tuple:
             return data
 
+        auth_user_id = get_jwt_identity()
+
         post = Post()
         post.title = data['title']
         post.body = data['body']
         post.published_at = datetime.utcnow()
         post.created_at = datetime.utcnow()
         post.updated_at = datetime.utcnow()
-        post.created_by = 1
-        post.updated_by = 1
+        post.created_by = auth_user_id
+        post.updated_by = auth_user_id
         db.session.add(post)
         db.session.commit()
 
@@ -56,8 +58,8 @@ class PostController:
     @admin_or_self_created
     def update_post(post_id):
         post_schema = {
-            'title': {'type': 'string', 'required': True, 'empty': False, 'maxlength': 255},
-            'body': {'type': 'string', 'required': True, 'empty': False}
+            'title': {'type': 'string', 'empty': True, 'maxlength': 255},
+            'body': {'type': 'string', 'empty': True}
         }
 
         data = validate_request_data(request, post_schema)
@@ -68,10 +70,11 @@ class PostController:
         if not post:
             return jsonify({'message': 'Post not found'}), 404
 
-        post.title = data['title']
-        post.body = data['body']
+        auth_user_id = get_jwt_identity()
+        post.title = data['title'] or post.title
+        post.body = data['body'] or post.body
         post.updated_at = datetime.utcnow()
-        post.updated_by = 1
+        post.updated_by = auth_user_id
         db.session.add(post)
         db.session.commit()
 
