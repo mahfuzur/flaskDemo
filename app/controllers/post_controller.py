@@ -52,6 +52,12 @@ class PostController:
         # created_by
         created_by = request.args.get('created_by')
 
+        # Sorting
+        sort_param = request.args.get('sort')
+        sort_fields = []
+        if sort_param:
+            sort_fields = sort_param.split(',')
+
         # Base query
         query = Post.query
 
@@ -69,6 +75,22 @@ class PostController:
 
         if created_by:
             query = query.filter_by(created_by=created_by)
+
+        # Apply sorting
+        for field in sort_fields:
+            if field.startswith('-'):
+                # Descending order
+                sort_field = field[1:]
+                if hasattr(Post, sort_field):
+                    query = query.order_by(getattr(Post, sort_field).desc())
+                else:
+                    return jsonify({'error': f'Invalid sort field: {sort_field}'}), 400
+            else:
+                # Ascending order
+                if hasattr(Post, field):
+                    query = query.order_by(getattr(Post, field))
+                else:
+                    return jsonify({'error': f'Invalid sort field: {field}'}), 400
 
         # Paginate the results
         paginated_posts = query.paginate(page=page, per_page=per_page, error_out=False)

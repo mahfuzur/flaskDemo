@@ -57,6 +57,12 @@ class UserController:
         # Searching
         search_query = request.args.get('q')
 
+        # Sorting
+        sort_param = request.args.get('sort')
+        sort_fields = []
+        if sort_param:
+            sort_fields = sort_param.split(',')
+
         # Base query
         query = User.query
 
@@ -73,6 +79,22 @@ class UserController:
                     User.role.ilike(f'%{search_query}%')
                 )
             )
+
+        # Apply sorting
+        for field in sort_fields:
+            if field.startswith('-'):
+                # Descending order
+                sort_field = field[1:]
+                if hasattr(User, sort_field):
+                    query = query.order_by(getattr(User, sort_field).desc())
+                else:
+                    return jsonify({'error': f'Invalid sort field: {sort_field}'}), 400
+            else:
+                # Ascending order
+                if hasattr(User, field):
+                    query = query.order_by(getattr(User, field))
+                else:
+                    return jsonify({'error': f'Invalid sort field: {field}'}), 400
 
         # Paginate the results
         paginated_users = query.paginate(page=page, per_page=per_page, error_out=False)
