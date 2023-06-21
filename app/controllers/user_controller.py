@@ -1,6 +1,7 @@
 import bcrypt
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import or_
 
 from app import User
 from app.config.db import db
@@ -46,8 +47,47 @@ class UserController:
 
     @staticmethod
     def get_all_users():
-        users = User.query.all()
-        return jsonify(users)
+        # Pagination
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('limit', default=10, type=int)
+
+        # Filtering
+        role = request.args.get('role')
+
+        # Searching
+        search_query = request.args.get('q')
+
+        # Base query
+        query = User.query
+
+        # Apply filters
+        if role:
+            query = query.filter_by(role=role)
+
+        # Apply search query
+        if search_query:
+            query = User.query.filter(
+                or_(
+                    User.full_name.ilike(f'%{search_query}%'),
+                    User.email.ilike(f'%{search_query}%'),
+                    User.role.ilike(f'%{search_query}%')
+                )
+            )
+
+        # Paginate the results
+        paginated_users = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # Prepare response
+        response = {
+            'results': paginated_users.items,
+            'meta': {
+                'total': paginated_users.total,
+                'page': paginated_users.page,
+                'pages': paginated_users.pages
+            }
+        }
+
+        return jsonify(response)
 
     @staticmethod
     def get_user(user_id):
