@@ -20,6 +20,7 @@ profile_controller = ProfileController()
 
 api.route('/profile', methods=['GET'])(profile_controller.get_profile)
 api.route('/profile', methods=['POST'])(profile_controller.set_profile)
+api.route('/change-password', methods=['POST'])(profile_controller.change_password)
 
 post_controller = PostController()
 api.route('/posts', methods=['POST'])(post_controller.create_post)
