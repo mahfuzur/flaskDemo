@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import or_
 
 from app import db, Post
 from app.middlewares import post_exist, admin_or_self_created
@@ -41,8 +42,39 @@ class PostController:
 
     @staticmethod
     def get_all_posts():
-        posts = Post.query.all()
-        return jsonify(posts)
+        # Pagination
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('limit', default=10, type=int)
+
+        # Searching
+        search_query = request.args.get('q')
+
+        # Base query
+        query = Post.query
+
+        # Apply search query
+        if search_query:
+            query = Post.query.filter(
+                or_(
+                    Post.title.ilike(f'%{search_query}%'),
+                    Post.body.ilike(f'%{search_query}%')
+                )
+            )
+
+        # Paginate the results
+        paginated_posts = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # Prepare response
+        response = {
+            'results': paginated_posts.items,
+            'meta': {
+                'total': paginated_posts.total,
+                'page': paginated_posts.page,
+                'pages': paginated_posts.pages
+            }
+        }
+
+        return jsonify(response)
 
     @staticmethod
     def get_post(post_id):
