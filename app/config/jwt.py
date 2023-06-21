@@ -1,10 +1,9 @@
 from datetime import timedelta
 
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import JWTManager
 
 
 def initialize_jwt(app):
     app.config['JWT_SECRET_KEY'] = 'your-secret-key'
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=2)
-
-    jwt = JWTManager(app)
+    JWTManager(app)

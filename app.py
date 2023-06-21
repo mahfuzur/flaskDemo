@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from dotenv import load_dotenv
 from sqlalchemy import text
 
