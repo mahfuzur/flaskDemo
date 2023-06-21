@@ -119,12 +119,22 @@ class UserController:
         if 'full_name' in data:
             user.full_name = data['full_name']
         if 'email' in data:
+            # Check if the email already exists for another user
+            existing_user = User.query.filter(User.email == data['email'], User.id != user_id).first()
+            if existing_user:
+                return jsonify({'message': 'Email already exists',
+                                'errors': {
+                                    'email': 'Email already exists'
+                                }}), 400
+
             user.email = data['email']
+
         if 'role' in data:
             user.role = data['role']
         if 'password' in data:
             user.encrypted_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
 
+        db.session.add(user)
         db.session.commit()
 
         return jsonify({
