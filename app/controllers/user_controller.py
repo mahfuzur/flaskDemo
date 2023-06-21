@@ -66,7 +66,7 @@ class UserController:
 
         # Apply search query
         if search_query:
-            query = User.query.filter(
+            query = query.filter(
                 or_(
                     User.full_name.ilike(f'%{search_query}%'),
                     User.email.ilike(f'%{search_query}%'),

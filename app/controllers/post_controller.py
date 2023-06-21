@@ -49,17 +49,23 @@ class PostController:
         # Searching
         search_query = request.args.get('q')
 
+        # created_by
+        created_by = request.args.get('created_by')
+
         # Base query
         query = Post.query
 
         # Apply search query
         if search_query:
-            query = Post.query.filter(
+            query = query.filter(
                 or_(
                     Post.title.ilike(f'%{search_query}%'),
                     Post.body.ilike(f'%{search_query}%')
                 )
             )
+
+        if created_by:
+            query = query.filter_by(created_by=created_by)
 
         # Paginate the results
         paginated_posts = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -103,8 +109,13 @@ class PostController:
             return jsonify({'message': 'Post not found'}), 404
 
         auth_user_id = get_jwt_identity()
-        post.title = data['title'] or post.title
-        post.body = data['body'] or post.body
+
+        if 'title' in data:
+            post.title = data['title']
+
+        if 'body' in data:
+            post.body = data['body']
+
         post.updated_at = datetime.utcnow()
         post.updated_by = auth_user_id
         db.session.add(post)
