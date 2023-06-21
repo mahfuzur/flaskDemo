@@ -4,7 +4,7 @@ from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import or_
 
-from app import db, Post
+from app import db, Post, User
 from app.middlewares import post_exist, admin_or_self_created
 from app.utils import validate_request_data
 
@@ -55,6 +55,9 @@ class PostController:
         # Base query
         query = Post.query
 
+        # populate
+        populate = request.args.get('populate', '')
+
         # Apply search query
         if search_query:
             query = query.filter(
@@ -70,9 +73,26 @@ class PostController:
         # Paginate the results
         paginated_posts = query.paginate(page=page, per_page=per_page, error_out=False)
 
+        post_list = []
+
+        for post in paginated_posts.items:
+            post_data = post
+
+            if 'created_by' in populate:
+                created_by = User.query.get(post.created_by)
+                if created_by:
+                    post_data.created_by = created_by
+
+            if 'updated_by' in populate:
+                updated_by = User.query.get(post.updated_by)
+                if updated_by:
+                    post_data.updated_by = updated_by
+
+            post_list.append(post_data)
+
         # Prepare response
         response = {
-            'results': paginated_posts.items,
+            'results': post_list,
             'meta': {
                 'total': paginated_posts.total,
                 'page': paginated_posts.page,
@@ -86,6 +106,10 @@ class PostController:
     def get_post(post_id):
         post = Post.query.get(post_id)
         if post:
+            created_by = User.query.get(post.created_by)
+            updated_by = User.query.get(post.updated_by)
+            post.created_by = created_by
+            post.updated_by = updated_by
             return jsonify(post)
         else:
             return jsonify({'message': 'Post not found'}), 404

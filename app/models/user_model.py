@@ -27,3 +27,6 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.id}: {self.email}>"
+
+    def __hash__(self):
+        return hash(self.name)
