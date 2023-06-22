@@ -38,7 +38,7 @@ class PostController:
         return jsonify({
             'status': True,
             'data': post
-        })
+        }), 201
 
     @staticmethod
     def get_all_posts():

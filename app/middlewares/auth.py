@@ -36,7 +36,7 @@ def admin_or_self_created(func):
 
         # Check if the current user is an admin or the creator of the post
         if not (is_admin or is_self_created):
-            return jsonify({'message': 'Admin access or post creator access required'}), 401
+            return jsonify({'message': 'Admin access or post creator access required'}), 403
 
         return func(*args, **kwargs)
 
